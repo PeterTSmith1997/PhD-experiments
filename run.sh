@@ -6,7 +6,7 @@
 #SBATCH --ntasks=1                 # 1 task total
 #SBATCH --cpus-per-task=4         # 4 CPU cores
 #SBATCH --mem=32GB
-#SBATCH --partition=standard      # Or whatever default CPU queue your HPC uses
+#SBATCH --partition=72hour      # Or whatever default CPU queue your HPC uses
 #SBATCH --mail-user=peter.t.smith@northumbria.ac.uk
 #SBATCH --mail-type=ALL
 
