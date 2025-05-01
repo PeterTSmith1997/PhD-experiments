@@ -1,24 +1,28 @@
-import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 import torch
 from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
+import pandas as pd
+import numpy as np
 
-# Load data
-file = "../dataset/flowFeatures.csv"
-data = pd.read_csv(file)
-
-# Identify non-numeric columns excluding the label column
+file = "apt-dataset/flowFeatures.csv"
 label_column = 'Label'
-non_numeric_columns = [col for col in data.select_dtypes(include=['object']).columns if col != label_column]
 
-# Encode non-numeric features
-for col in non_numeric_columns:
-    data[col] = LabelEncoder().fit_transform(data[col])
+# Load with strings to avoid mixed dtype issues
+data = pd.read_csv(file, dtype=str, low_memory=False)
 
-# Extract labels (unchanged)
+# Convert all columns except label to numeric
+for col in data.columns:
+    if col != label_column:
+        data[col] = pd.to_numeric(data[col], errors='coerce')
+
+# Drop rows with NaN or Inf
+data = data.replace([np.inf, -np.inf], np.nan)
+data = data.dropna()
+
+# Separate label and features
 labels = data[label_column]
-data = data.drop(columns=[label_column])  # Corrected: now reassigning
+data = data.drop(columns=[label_column])
 
 # Normalize features
 scaler = MinMaxScaler()
