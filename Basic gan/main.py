@@ -5,7 +5,7 @@ from torch.utils.data import TensorDataset, DataLoader
 import pandas as pd
 import numpy as np
 
-file = "apt-dataset/flowFeatures.csv"
+file = "../dataset/flowFeatures.csv"
 label_column = 'Label'
 
 # Load with strings to avoid mixed dtype issues
