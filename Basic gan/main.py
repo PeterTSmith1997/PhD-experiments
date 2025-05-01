@@ -5,7 +5,7 @@ from torch import nn
 from torch.utils.data import TensorDataset, DataLoader
 
 # Load data
-file = "../apt dataset/flowFeatures.csv"
+file = "../dataset/flowFeatures.csv"
 data = pd.read_csv(file)
 
 # Identify non-numeric columns excluding the label column
