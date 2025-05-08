@@ -1,0 +1,13 @@
+Using Python: /home/osw_w16018262/miniconda3/bin/python
+Using Conda Env: 
+# conda environments:
+#
+data-analysis          /home/osw_w16018262/HPC-test/data-analysis
+gan_env                /home/osw_w16018262/HPC-test/gan_env
+main                   /home/osw_w16018262/HPC-test/main
+test                   /home/osw_w16018262/HPC-test/test
+base                 * /home/osw_w16018262/miniconda3
+Traceback (most recent call last):
+  File "/home/osw_w16018262/PhD-experiments/Analysis of Dataset/main.py", line 3, in <module>
+    import seaborn as sns
+ModuleNotFoundError: No module named 'seaborn'
