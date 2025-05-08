@@ -1,10 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import os
-
-# Ensure output directory exists
-os.makedirs("plots", exist_ok=True)
+import numpy as np
+from scipy.stats import f_oneway
 
 # Load the CSV
 df = pd.read_csv("../dataset/flowFeatures.csv")
@@ -24,7 +22,7 @@ sns.countplot(data=df, x="Label")
 plt.title("Label Distribution")
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.savefig("plots/label_distribution.png")
+plt.savefig("label_distribution.png")
 plt.close()
 
 # Select only numeric columns
@@ -36,7 +34,7 @@ corr = numeric_df.corr()
 sns.heatmap(corr, cmap='coolwarm', linewidths=0.5)
 plt.title("Feature Correlation Heatmap")
 plt.tight_layout()
-plt.savefig("plots/correlation_heatmap.png")
+plt.savefig("correlation_heatmap.png")
 plt.close()
 
 # Optional: feature importance using random forest
@@ -44,10 +42,6 @@ try:
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.preprocessing import LabelEncoder
     from sklearn.impute import SimpleImputer
-    from sklearn.manifold import TSNE
-    from sklearn.decomposition import PCA
-    import numpy as np
-
 
     # Handle infinite and NaNs
     X = numeric_df.replace([np.inf, -np.inf], np.nan)
@@ -60,12 +54,11 @@ try:
     importances = pd.Series(model.feature_importances_, index=X.columns)
     top_features = importances.nlargest(5).index
 
-    # Feature importance plot
     importances.nlargest(10).plot(kind='barh')
     plt.title("Top 10 Important Features")
     plt.xlabel("Importance")
     plt.tight_layout()
-    plt.savefig("plots/top_10_feature_importance.png")
+    plt.savefig("feature_importance.png")
     plt.close()
 
     # Boxplot of top 5 features grouped by label
@@ -76,32 +69,29 @@ try:
     sns.boxplot(x="variable", y="value", hue="Label", data=df_melted)
     plt.title("Distribution of Top 5 Important Features by Label")
     plt.tight_layout()
-    plt.savefig("plots/top_5_features_boxplot.png")
+    plt.savefig("top_features_boxplot.png")
     plt.close()
 
 except Exception as e:
     print("Feature importance skipped:", e)
 
-# t-SNE plot
-try:
-    X_tsne = TSNE(n_components=2, random_state=42, perplexity=30).fit_transform(X)
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(x=X_tsne[:, 0], y=X_tsne[:, 1], hue=df["Label"], palette="tab10", s=10)
-    plt.title("t-SNE Projection Colored by Label")
-    plt.tight_layout()
-    plt.savefig("plots/tsne_projection.png")
-    plt.close()
-except Exception as e:
-    print("t-SNE plot skipped:", e)
+# ANOVA analysis
+print("\nPerforming ANOVA...")
+anova_results = {}
+labels = df["Label"].unique()
 
-# PCA plot
-try:
-    X_pca = PCA(n_components=2).fit_transform(X)
-    plt.figure(figsize=(8, 6))
-    sns.scatterplot(x=X_pca[:, 0], y=X_pca[:, 1], hue=df["Label"], palette="tab10", s=10)
-    plt.title("PCA Projection Colored by Label")
-    plt.tight_layout()
-    plt.savefig("plots/pca_projection.png")
-    plt.close()
-except Exception as e:
-    print("PCA plot skipped:", e)
+for col in numeric_df.columns:
+    groups = [df[df["Label"] == label][col].replace([np.inf, -np.inf], np.nan).dropna() for label in labels]
+    try:
+        f_val, p_val = f_oneway(*groups)
+        anova_results[col] = p_val
+    except Exception:
+        anova_results[col] = np.nan  # if a feature can't be tested
+
+anova_df = pd.DataFrame.from_dict(anova_results, orient='index', columns=['p_value']).dropna()
+anova_df = anova_df.sort_values('p_value')
+
+# Save top 10 ANOVA features
+print("\nTop 10 ANOVA features (lowest p-values):\n")
+print(anova_df.head(10))
+anova_df.head(10).to_csv("anova_top_features.csv")
