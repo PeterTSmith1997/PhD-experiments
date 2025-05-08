@@ -44,7 +44,10 @@ try:
     from sklearn.ensemble import RandomForestClassifier
     from sklearn.preprocessing import LabelEncoder
     from sklearn.impute import SimpleImputer
+    from sklearn.manifold import TSNE
+    from sklearn.decomposition import PCA
     import numpy as np
+
 
     # Handle infinite and NaNs
     X = numeric_df.replace([np.inf, -np.inf], np.nan)
@@ -78,3 +81,27 @@ try:
 
 except Exception as e:
     print("Feature importance skipped:", e)
+
+# t-SNE plot
+try:
+    X_tsne = TSNE(n_components=2, random_state=42, perplexity=30).fit_transform(X)
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x=X_tsne[:, 0], y=X_tsne[:, 1], hue=df["Label"], palette="tab10", s=10)
+    plt.title("t-SNE Projection Colored by Label")
+    plt.tight_layout()
+    plt.savefig("plots/tsne_projection.png")
+    plt.close()
+except Exception as e:
+    print("t-SNE plot skipped:", e)
+
+# PCA plot
+try:
+    X_pca = PCA(n_components=2).fit_transform(X)
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x=X_pca[:, 0], y=X_pca[:, 1], hue=df["Label"], palette="tab10", s=10)
+    plt.title("PCA Projection Colored by Label")
+    plt.tight_layout()
+    plt.savefig("plots/pca_projection.png")
+    plt.close()
+except Exception as e:
+    print("PCA plot skipped:", e)
