@@ -1,6 +1,10 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import os
+
+# Ensure output directory exists
+os.makedirs("plots", exist_ok=True)
 
 # Load the CSV
 df = pd.read_csv("../dataset/flowFeatures.csv")
@@ -20,7 +24,8 @@ sns.countplot(data=df, x="Label")
 plt.title("Label Distribution")
 plt.xticks(rotation=45)
 plt.tight_layout()
-plt.show()
+plt.savefig("plots/label_distribution.png")
+plt.close()
 
 # Select only numeric columns
 numeric_df = df.select_dtypes(include=['number'])
@@ -31,7 +36,8 @@ corr = numeric_df.corr()
 sns.heatmap(corr, cmap='coolwarm', linewidths=0.5)
 plt.title("Feature Correlation Heatmap")
 plt.tight_layout()
-plt.show()
+plt.savefig("plots/correlation_heatmap.png")
+plt.close()
 
 # Optional: feature importance using random forest
 try:
@@ -51,11 +57,13 @@ try:
     importances = pd.Series(model.feature_importances_, index=X.columns)
     top_features = importances.nlargest(5).index
 
+    # Feature importance plot
     importances.nlargest(10).plot(kind='barh')
     plt.title("Top 10 Important Features")
     plt.xlabel("Importance")
     plt.tight_layout()
-    plt.show()
+    plt.savefig("plots/top_10_feature_importance.png")
+    plt.close()
 
     # Boxplot of top 5 features grouped by label
     df_cleaned = df.copy()
@@ -65,7 +73,8 @@ try:
     sns.boxplot(x="variable", y="value", hue="Label", data=df_melted)
     plt.title("Distribution of Top 5 Important Features by Label")
     plt.tight_layout()
-    plt.show()
+    plt.savefig("plots/top_5_features_boxplot.png")
+    plt.close()
 
 except Exception as e:
     print("Feature importance skipped:", e)
