@@ -16,7 +16,7 @@ module purge
 # Activate Conda
 export PATH=~/miniconda3/bin:$PATH
 source ~/miniconda3/etc/profile.d/conda.sh
-conda activate data-analysis
+conda activate base
 
 # Info
 echo "Using Python: $(which python)"
