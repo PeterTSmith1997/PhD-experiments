@@ -75,7 +75,7 @@ try:
 except Exception as e:
     print("Feature importance skipped:", e)
 
-# Filter only numeric features
+# Filter only numeric features again (in case X changed earlier)
 numeric_df = df.select_dtypes(include=['number'])
 
 # Get labels
@@ -92,7 +92,7 @@ if len(labels) == 2:
         group2 = class2[column].replace([np.inf, -np.inf], np.nan).dropna()
 
         if len(group1) > 1 and len(group2) > 1:
-            stat, pval = stats.f_oneway(group1, group2)
+            stat, pval = f_oneway(group1, group2)
             anova_results.append({'Feature': column, 'p-value': pval})
 
     # Save to CSV
