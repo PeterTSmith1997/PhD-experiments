@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --job-name=Test_gan_training
-#SBATCH --output=test_gan_%j.txt
+#SBATCH --job-name=data_analysis
+#SBATCH --output=data_analysis_%j.txt
 #SBATCH --time=08:00:00
 #SBATCH --nodes=1                  # Use 1 node for now (scale up later if needed)
 #SBATCH --ntasks=1                 # 1 task total
@@ -17,10 +17,6 @@ module purge
 export PATH=~/miniconda3/bin:$PATH
 source ~/miniconda3/etc/profile.d/conda.sh
 conda activate base
-
-# Info
-echo "Using Python: $(which python)"
-echo "Using Conda Env: $(conda info --envs)"
 
 # Run your script
 python main.py
