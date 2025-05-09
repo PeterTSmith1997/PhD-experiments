@@ -75,23 +75,29 @@ try:
 except Exception as e:
     print("Feature importance skipped:", e)
 
-# ANOVA analysis
-print("\nPerforming ANOVA...")
-anova_results = {}
-labels = df["Label"].unique()
+# Filter only numeric features
+numeric_df = df.select_dtypes(include=['number'])
 
-for col in numeric_df.columns:
-    groups = [df[df["Label"] == label][col].replace([np.inf, -np.inf], np.nan).dropna() for label in labels]
-    try:
-        f_val, p_val = f_oneway(*groups)
-        anova_results[col] = p_val
-    except Exception:
-        anova_results[col] = np.nan  # if a feature can't be tested
+# Get labels
+labels = df['Label'].unique()
 
-anova_df = pd.DataFrame.from_dict(anova_results, orient='index', columns=['p_value']).dropna()
-anova_df = anova_df.sort_values('p_value')
+# Ensure exactly 2 labels for ANOVA
+if len(labels) == 2:
+    class1 = df[df['Label'] == labels[0]]
+    class2 = df[df['Label'] == labels[1]]
 
-# Save top 10 ANOVA features
-print("\nTop 10 ANOVA features (lowest p-values):\n")
-print(anova_df.head(10))
-anova_df.head(10).to_csv("anova_top_features.csv")
+    anova_results = []
+    for column in numeric_df.columns:
+        group1 = class1[column].replace([np.inf, -np.inf], np.nan).dropna()
+        group2 = class2[column].replace([np.inf, -np.inf], np.nan).dropna()
+
+        if len(group1) > 1 and len(group2) > 1:
+            stat, pval = stats.f_oneway(group1, group2)
+            anova_results.append({'Feature': column, 'p-value': pval})
+
+    # Save to CSV
+    anova_df = pd.DataFrame(anova_results)
+    anova_df.to_csv("anova_results.csv", index=False)
+    print("ANOVA p-values saved to anova_results.csv")
+else:
+    print("ANOVA requires exactly 2 classes in 'Label'. Found:", len(labels))
